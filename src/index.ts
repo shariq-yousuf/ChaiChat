@@ -11,6 +11,7 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
+  User,
 } from "firebase/auth"
 
 /* === Firebase Setup === */
@@ -41,6 +42,8 @@ const passwordInputEl = document.getElementById("password-input")
 const signInButtonEl = document.getElementById("sign-in-btn")
 const createAccountButtonEl = document.getElementById("create-account-btn")
 const signOutButtonEl = document.getElementById("sign-out-btn")
+const userProfilePictureEl = document.getElementById("user-profile-picture")
+
 /* == UI - Event Listeners == */
 
 signInWithGoogleButtonEl.addEventListener("click", authSignInWithGoogle)
@@ -53,6 +56,7 @@ signOutButtonEl.addEventListener("click", authSignOut)
 onAuthStateChanged(auth, (user) => {
   if (user) {
     showLoggedInView()
+    showProfilePicture(userProfilePictureEl as HTMLImageElement, user)
   } else {
     showLoggedOutView()
   }
@@ -133,6 +137,12 @@ function clearInputField(field: HTMLElement) {
 function clearAuthFields() {
   clearInputField(emailInputEl)
   clearInputField(passwordInputEl)
+}
+
+function showProfilePicture(imgElement: HTMLImageElement, user: User) {
+  imgElement.src = user.photoURL
+    ? user.photoURL
+    : "assets/images/default-profile-picture.jpeg" // default image
 }
 
 /* == Utils == */

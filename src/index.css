@@ -61,6 +61,22 @@ section {
   gap: 1em;
 }
 
+/* === User Section === */
+
+.user-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8em;
+}
+
+.user-section img {
+    width: 3.75em;
+    height: 3.75em;
+    border-radius: 100%;
+    border: var(--border-width) solid var(--dark-color);
+}
+
 /* === Nav === */
 
 nav {
@@ -82,6 +98,12 @@ nav {
 
 #logged-out-view .container {
   gap: 2em;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    gap: 3em;
 }
 
 /* === Common for elements === */
