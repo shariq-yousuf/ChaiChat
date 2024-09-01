@@ -22,8 +22,6 @@ import {
   FieldValue,
   DocumentData,
   onSnapshot,
-  query,
-  where,
 } from "firebase/firestore"
 
 /* === Firebase Setup === */
@@ -99,7 +97,7 @@ onAuthStateChanged(auth, (user) => {
     showLoggedInView()
     showProfilePicture(user)
     showUserName(user)
-    fetchInRealtimeAndRenderPostsFromDB(user)
+    fetchInRealtimeAndRenderPostsFromDB()
   } else {
     showLoggedOutView()
   }
@@ -202,7 +200,7 @@ async function addPostToDB(postBody: string, user: User) {
   }
 }
 
-function fetchInRealtimeAndRenderPostsFromDB(user: User) {
+function fetchInRealtimeAndRenderPostsFromDB() {
   const postsRef = collection(db, collectionName)
   // const q = query(postsRef, where("uid", "==", user.uid))
 
