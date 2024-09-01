@@ -1,7 +1,7 @@
 /* === Imports === */
+//                                                                                 // import { getAnalytics } from "firebase/analytics"
 import "./index.css"
 import { initializeApp } from "firebase/app"
-// import { getAnalytics } from "firebase/analytics"
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -9,6 +9,8 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from "firebase/auth"
 
 /* === Firebase Setup === */
@@ -20,9 +22,10 @@ const firebaseConfig = {
   appId: "1:251233526924:web:fe4da7397615bc3c8a47a9",
 }
 
+//                                                                                  //const analytics = getAnalytics(app)
 const app = initializeApp(firebaseConfig)
-// const analytics = getAnalytics(app)
 const auth = getAuth(app)
+const provider = new GoogleAuthProvider()
 
 /* === UI === */
 
@@ -59,8 +62,13 @@ onAuthStateChanged(auth, (user) => {
 
 /* = Functions - Firebase - Authentication = */
 
-function authSignInWithGoogle() {
-  console.log("Sign in with Google")
+async function authSignInWithGoogle() {
+  try {
+    await signInWithPopup(auth, provider)
+    console.log("Sign in with Google")
+  } catch (error) {
+    console.error("Sign in with Google failed:", getErrorMessage(error))
+  }
 }
 
 async function authSignInWithEmail() {
