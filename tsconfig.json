@@ -20,5 +20,6 @@
     "noFallthroughCasesInSwitch": true,
     "strictNullChecks": false
   },
+
   "include": ["src"]
 }
