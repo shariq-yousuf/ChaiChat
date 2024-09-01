@@ -195,7 +195,8 @@ nav {
   gap: 2em;
 }
 
-.app-container {
+.app-container,
+.post-container {
   display: flex;
   flex-direction: column;
   gap: 1em;

@@ -280,7 +280,7 @@ function toggleSectionsView() {
   postSection.classList.toggle("hide")
 
   if (postSection.classList.contains("hide")) {
-    toggleSectionsBtn.textContent = "Feed"
+    toggleSectionsBtn.textContent = "Home"
   } else {
     toggleSectionsBtn.textContent = "Profile"
   }
