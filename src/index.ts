@@ -43,6 +43,7 @@ const signInButtonEl = document.getElementById("sign-in-btn")
 const createAccountButtonEl = document.getElementById("create-account-btn")
 const signOutButtonEl = document.getElementById("sign-out-btn")
 const userProfilePictureEl = document.getElementById("user-profile-picture")
+const userGreetingEl = document.getElementById("user-greeting")
 
 /* == UI - Event Listeners == */
 
@@ -57,6 +58,7 @@ onAuthStateChanged(auth, (user) => {
   if (user) {
     showLoggedInView()
     showProfilePicture(userProfilePictureEl as HTMLImageElement, user)
+    showUserGreeting(userGreetingEl, user)
   } else {
     showLoggedOutView()
   }
@@ -143,6 +145,14 @@ function showProfilePicture(imgElement: HTMLImageElement, user: User) {
   imgElement.src = user.photoURL
     ? user.photoURL
     : "assets/images/default-profile-picture.jpeg" // default image
+}
+
+function showUserGreeting(element: HTMLElement, user: User) {
+  element.innerHTML = user.displayName
+    ? `کیا حال ہے؟ ،<span class="user-name">${
+        user.displayName.split(" ")[0]
+      }</span> السلام علیکم`
+    : `السلام علیکم دوست، کیا حال ہے؟`
 }
 
 /* == Utils == */
