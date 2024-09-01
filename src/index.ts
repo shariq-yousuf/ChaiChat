@@ -54,7 +54,7 @@ const signInButtonEl = document.getElementById("sign-in-btn")
 const createAccountButtonEl = document.getElementById("create-account-btn")
 const signOutButtonEl = document.getElementById("sign-out-btn")
 const userProfilePictureEl = document.getElementById("user-profile-picture")
-const userGreetingEl = document.getElementById("user-greeting")
+const userNameEl = document.getElementById("user-name")
 const displayNameInputEl = document.getElementById("display-name-input")
 const photoURLInputEl = document.getElementById("photo-url-input")
 const updateProfileButtonEl = document.getElementById("update-profile-btn")
@@ -96,7 +96,7 @@ onAuthStateChanged(auth, (user) => {
   if (user) {
     showLoggedInView()
     showProfilePicture(user)
-    showUserGreeting(user)
+    showUserName(user)
     fetchInRealtimeAndRenderPostsFromDB()
   } else {
     showLoggedOutView()
@@ -165,7 +165,7 @@ async function authUpdateProfile() {
       await updateProfile(auth.currentUser, updatedInfo)
 
       showProfilePicture(auth.currentUser)
-      showUserGreeting(auth.currentUser)
+      showUserName(auth.currentUser)
     } catch (error) {
       console.error("Updating profile failed:", getErrorMessage(error))
       updateErrorEl.textContent = getErrorMessage(error)
@@ -271,12 +271,8 @@ function showProfilePicture(user: User) {
     : "assets/images/default-profile-picture.jpeg" // default image
 }
 
-function showUserGreeting(user: User) {
-  userGreetingEl.innerHTML = user.displayName
-    ? `کیا حال ہے؟ ،<span class="user-name">${
-        user.displayName.split(" ")[0]
-      }</span> السلام علیکم`
-    : `السلام علیکم دوست، کیا حال ہے؟`
+function showUserName(user: User) {
+  userNameEl.innerHTML = user.displayName ? user.displayName : "--user--"
 }
 
 function toggleSectionsView() {

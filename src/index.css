@@ -88,10 +88,6 @@ section {
 .user-section h2 {
   font-size: 1.2em;
   text-align: center;
-  font-family: "Noto Nastaliq Urdu", "Gulzar", sans-serif;
-}
-
-.user-name {
   font-family: var(--primary-font);
 }
 
@@ -240,7 +236,8 @@ textarea:focus {
 form {
   display: flex;
   flex-direction: column;
-  gap: 1em;
+  gap: 0.5em;
+  margin-top: 1em;
 }
 
 textarea {
