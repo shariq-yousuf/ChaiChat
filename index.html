@@ -26,6 +26,7 @@
         <div class="auth-fields-and-buttons">
           <input id="email-input" type="email" placeholder="Email" />
           <input id="password-input" type="password" placeholder="Password" />
+          <p id="sign-error" class="error-msg"></p>
 
           <button id="sign-in-btn" class="primary-btn">Sign in</button>
           <button id="create-account-btn" class="secondary-btn">
@@ -38,6 +39,9 @@
     <section id="logged-in-view">
       <div class="container">
         <nav>
+          <button id="toggle-update-profile-section-btn" class="primary-btn">
+            Profile
+          </button>
           <button id="sign-out-btn" class="icon-btn">
             <img src="/assets/icons/icon-sign-out.svg" class="icon-img-btn" />
           </button>
@@ -48,6 +52,29 @@
             <img id="user-profile-picture" alt="profile-pic" />
             <h2 id="user-greeting"></h2>
           </div>
+
+          <form
+            action="javascript:void(0)"
+            id="update-profile-container"
+            class="hide"
+          >
+            <input
+              id="display-name-input"
+              type="text"
+              placeholder="Display Name"
+              required
+            />
+            <input
+              id="photo-url-input"
+              type="text"
+              placeholder="Profile Photo URL"
+              required
+            />
+            <p id="update-error" class="error-msg"></p>
+            <button id="update-profile-btn" class="primary-btn">
+              Update profile
+            </button>
+          </form>
         </div>
       </div>
     </section>

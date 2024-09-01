@@ -12,6 +12,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   User,
+  updateProfile,
 } from "firebase/auth"
 
 /* === Firebase Setup === */
@@ -44,6 +45,17 @@ const createAccountButtonEl = document.getElementById("create-account-btn")
 const signOutButtonEl = document.getElementById("sign-out-btn")
 const userProfilePictureEl = document.getElementById("user-profile-picture")
 const userGreetingEl = document.getElementById("user-greeting")
+const displayNameInputEl = document.getElementById("display-name-input")
+const photoURLInputEl = document.getElementById("photo-url-input")
+const updateProfileButtonEl = document.getElementById("update-profile-btn")
+const updateProfileContainer = document.getElementById(
+  "update-profile-container"
+)
+const toggleUpdateProfileSectionBtn = document.getElementById(
+  "toggle-update-profile-section-btn"
+)
+const updateErrorEl = document.getElementById("update-error")
+const signErrorEl = document.getElementById("sign-error")
 
 /* == UI - Event Listeners == */
 
@@ -51,6 +63,11 @@ signInWithGoogleButtonEl.addEventListener("click", authSignInWithGoogle)
 signInButtonEl.addEventListener("click", authSignInWithEmail)
 createAccountButtonEl.addEventListener("click", authCreateAccountWithEmail)
 signOutButtonEl.addEventListener("click", authSignOut)
+updateProfileButtonEl.addEventListener("click", authUpdateProfile)
+toggleUpdateProfileSectionBtn.addEventListener(
+  "click",
+  toggleUpdateProfileSection
+)
 
 /* === Main Code === */
 
@@ -74,6 +91,7 @@ async function authSignInWithGoogle() {
     console.log("Sign in with Google")
   } catch (error) {
     console.error("Sign in with Google failed:", getErrorMessage(error))
+    signErrorEl.textContent = getErrorMessage(error)
   }
 }
 
@@ -87,6 +105,7 @@ async function authSignInWithEmail() {
     clearAuthFields()
   } catch (error) {
     console.error("Sign in failed:", getErrorMessage(error))
+    signErrorEl.textContent = getErrorMessage(error)
   }
 }
 
@@ -101,6 +120,7 @@ async function authCreateAccountWithEmail() {
     clearAuthFields()
   } catch (error) {
     console.error("Sign up failed:", getErrorMessage(error))
+    signErrorEl.textContent = getErrorMessage(error)
   }
 }
 
@@ -109,6 +129,22 @@ async function authSignOut() {
     await signOut(auth)
   } catch (error) {
     console.error("Sign out failed:", getErrorMessage(error))
+  }
+}
+
+async function authUpdateProfile() {
+  const updatedInfo = {
+    displayName: (displayNameInputEl as HTMLInputElement).value,
+    photoURL: (photoURLInputEl as HTMLInputElement).value,
+  }
+
+  try {
+    await updateProfile(auth.currentUser, updatedInfo)
+
+    location.reload()
+  } catch (error) {
+    console.error("Updating profile failed:", getErrorMessage(error))
+    updateErrorEl.textContent = getErrorMessage(error)
   }
 }
 
@@ -153,6 +189,10 @@ function showUserGreeting(element: HTMLElement, user: User) {
         user.displayName.split(" ")[0]
       }</span> السلام علیکم`
     : `السلام علیکم دوست، کیا حال ہے؟`
+}
+
+function toggleUpdateProfileSection() {
+  updateProfileContainer.classList.toggle("hide")
 }
 
 /* == Utils == */

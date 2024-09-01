@@ -98,7 +98,7 @@ nav {
   margin: 0.6em 0;
   width: 100%;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
 }
 
 /* === Structure === */
@@ -115,10 +115,11 @@ nav {
   gap: 2em;
 }
 
-.app-container {
+.app-container,
+form {
   display: flex;
   flex-direction: column;
-  gap: 3em;
+  gap: 1em;
 }
 
 /* === Common for elements === */
@@ -138,6 +139,11 @@ button {
 input:focus,
 button:focus {
   outline: none;
+}
+
+.error-msg {
+  margin: 0 10px;
+  color: red;
 }
 
 /* === Input fields === */
@@ -230,6 +236,12 @@ button:hover {
   filter: invert(0.5);
 }
 
+#toggle-update-profile-section-btn {
+  width: 5em;
+  height: 2em;
+  padding: 0;
+}
+
 /* === IDs === */
 
 #logged-out-view {
@@ -239,4 +251,16 @@ button:hover {
 #logged-in-view {
   display: none;
   margin: 0;
+}
+
+/* === utils === */
+
+.hide {
+  display: none;
+}
+
+.show {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
 }
