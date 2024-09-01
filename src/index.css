@@ -100,6 +100,42 @@ section {
   gap: 1em;
 }
 
+
+/* == Post Section - Mood Emojis == */
+
+.mood-emojis {
+    display: flex;
+}
+
+.mood-emoji-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.8em;
+    gap: 0.3em;
+    background-color: transparent;
+    border: 0;
+}
+
+.mood-emoji-btn:hover {
+    transform: scale(1.2);
+}
+
+.mood-emoji-btn img {
+    width: 3.1em;
+    height: 3.1em;
+}
+
+.selected-emoji {
+    transform: scale(1.2);
+    opacity: 1;
+}
+
+.unselected-emoji {
+    transform: scale(1);
+    opacity: 0.5;
+}
+
 /* === Nav === */
 
 nav {
@@ -156,6 +192,7 @@ textarea:focus {
 .error-msg {
   margin: 0 10px;
   color: red;
+  font-size: 0.9rem;
 }
 
 /* === Input fields === */

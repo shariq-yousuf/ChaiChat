@@ -62,8 +62,10 @@ const updateProfileContainer = document.getElementById(
 const toggleUpdateProfileSectionBtn = document.getElementById(
   "toggle-update-profile-section-btn"
 )
-const updateErrorEl = document.getElementById("update-error")
 const signErrorEl = document.getElementById("sign-error")
+const updateErrorEl = document.getElementById("update-error")
+const postErrorEl = document.getElementById("post-error")
+const moodEmojiEls = document.getElementsByClassName("mood-emoji-btn")
 const textareaEl = document.getElementById("post-input")
 const postButtonEl = document.getElementById("post-btn")
 
@@ -78,7 +80,14 @@ toggleUpdateProfileSectionBtn.addEventListener(
   "click",
   toggleUpdateProfileSection
 )
+for (let moodEmojiEl of moodEmojiEls) {
+  moodEmojiEl.addEventListener("click", selectMood)
+}
 postButtonEl.addEventListener("click", postButtonPressed)
+
+/* === State === */
+
+let moodState = 0
 
 /* === Main Code === */
 
@@ -168,12 +177,14 @@ async function addPostToDB(postBody: string, user: User) {
     body: string
     uid: string
     createdAt: FieldValue
+    mood: number
   }
 
   const post: Post = {
     body: postBody,
     uid: user.uid,
     createdAt: serverTimestamp(),
+    mood: moodState,
   }
 
   try {
@@ -189,9 +200,13 @@ function postButtonPressed() {
   const postBody = (textareaEl as HTMLTextAreaElement).value
   const user = auth.currentUser
 
-  if (postBody) {
+  if (postBody && moodState) {
     addPostToDB(postBody, user)
     clearInputField(textareaEl)
+    resetAllMoodElements()
+    postErrorEl.textContent = ""
+  } else {
+    postErrorEl.textContent = "Please write your feeling and select mood! 🙂"
   }
 }
 
@@ -238,6 +253,46 @@ function showUserGreeting(element: HTMLElement, user: User) {
 
 function toggleUpdateProfileSection() {
   updateProfileContainer.classList.toggle("show")
+}
+
+/* = Functions - UI Functions - Mood = */
+
+function selectMood(event: Event) {
+  const selectedMoodEmojiElementId = (event.currentTarget as HTMLInputElement)
+    .id
+
+  changeMoodsStyleAfterSelection(selectedMoodEmojiElementId)
+
+  const chosenMoodValue = returnMoodValueFromElementId(
+    selectedMoodEmojiElementId
+  )
+
+  moodState = chosenMoodValue
+}
+
+function changeMoodsStyleAfterSelection(selectedMoodElementId: string) {
+  for (let moodEmojiEl of moodEmojiEls) {
+    if (selectedMoodElementId === moodEmojiEl.id) {
+      moodEmojiEl.classList.remove("unselected-emoji")
+      moodEmojiEl.classList.add("selected-emoji")
+    } else {
+      moodEmojiEl.classList.remove("selected-emoji")
+      moodEmojiEl.classList.add("unselected-emoji")
+    }
+  }
+}
+
+function resetAllMoodElements() {
+  for (let moodEmojiEl of moodEmojiEls) {
+    moodEmojiEl.classList.remove("selected-emoji")
+    moodEmojiEl.classList.remove("unselected-emoji")
+  }
+
+  moodState = 0
+}
+
+function returnMoodValueFromElementId(elementId: string) {
+  return Number(elementId.slice(5))
 }
 
 /* == Utils == */
