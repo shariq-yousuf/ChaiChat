@@ -22,6 +22,9 @@ import {
   FieldValue,
   DocumentData,
   onSnapshot,
+  query,
+  orderBy,
+  limit,
 } from "firebase/firestore"
 
 /* === Firebase Setup === */
@@ -157,7 +160,9 @@ async function authSignOut() {
 async function authUpdateProfile() {
   const updatedInfo = {
     displayName: (displayNameInputEl as HTMLInputElement).value,
-    photoURL: (photoURLInputEl as HTMLInputElement).value,
+    photoURL: (photoURLInputEl as HTMLInputElement).value
+      ? (photoURLInputEl as HTMLInputElement).value
+      : auth.currentUser.photoURL,
   }
 
   if (updatedInfo.displayName) {
@@ -166,6 +171,9 @@ async function authUpdateProfile() {
 
       showProfilePicture(auth.currentUser)
       showUserName(auth.currentUser)
+
+      clearInputField(displayNameInputEl)
+      clearInputField(photoURLInputEl)
     } catch (error) {
       console.error("Updating profile failed:", getErrorMessage(error))
       updateErrorEl.textContent = getErrorMessage(error)
@@ -202,9 +210,9 @@ async function addPostToDB(postBody: string, user: User) {
 
 function fetchInRealtimeAndRenderPostsFromDB() {
   const postsRef = collection(db, collectionName)
-  // const q = query(postsRef, where("uid", "==", user.uid))
+  const q = query(postsRef, orderBy("createdAt", "desc"), limit(15))
 
-  onSnapshot(postsRef, (querySnapshot) => {
+  onSnapshot(q, (querySnapshot) => {
     clearAll(postsEl)
 
     querySnapshot.forEach((doc) => renderPost(doc.data()))
