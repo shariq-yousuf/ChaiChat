@@ -172,6 +172,11 @@ section {
   line-height: 1.3em;
 }
 
+.post-user-name {
+  font-weight: bold;
+  color: green;
+}
+
 /* === Nav === */
 
 nav {

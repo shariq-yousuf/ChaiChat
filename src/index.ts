@@ -22,6 +22,8 @@ import {
   FieldValue,
   DocumentData,
   onSnapshot,
+  query,
+  where,
 } from "firebase/firestore"
 
 /* === Firebase Setup === */
@@ -97,7 +99,7 @@ onAuthStateChanged(auth, (user) => {
     showLoggedInView()
     showProfilePicture(user)
     showUserName(user)
-    fetchInRealtimeAndRenderPostsFromDB()
+    fetchInRealtimeAndRenderPostsFromDB(user)
   } else {
     showLoggedOutView()
   }
@@ -178,15 +180,19 @@ async function authUpdateProfile() {
 async function addPostToDB(postBody: string, user: User) {
   interface Post {
     body: string
-    uid: string
     createdAt: FieldValue
     mood: number
+    uid: string
+    userName: string
+    profilePic: string
   }
   const post: Post = {
     body: postBody,
-    uid: user.uid,
     createdAt: serverTimestamp(),
     mood: moodState,
+    uid: user.uid,
+    userName: user.displayName,
+    profilePic: user.photoURL,
   }
 
   try {
@@ -196,8 +202,11 @@ async function addPostToDB(postBody: string, user: User) {
   }
 }
 
-function fetchInRealtimeAndRenderPostsFromDB() {
-  onSnapshot(collection(db, collectionName), (querySnapshot) => {
+function fetchInRealtimeAndRenderPostsFromDB(user: User) {
+  const postsRef = collection(db, collectionName)
+  // const q = query(postsRef, where("uid", "==", user.uid))
+
+  onSnapshot(postsRef, (querySnapshot) => {
     clearAll(postsEl)
 
     querySnapshot.forEach((doc) => renderPost(doc.data()))
@@ -207,12 +216,18 @@ function fetchInRealtimeAndRenderPostsFromDB() {
 /* == Functions - UI Functions == */
 
 function renderPost(postData: DocumentData) {
+  const profilPicLink = postData.profilePic
+    ? postData.profilePic
+    : "assets/images/default-profile-picture.jpeg"
+
   postsEl.innerHTML += `
       <div class="post">
         <div class="header">
+          <img src="${profilPicLink}" alt="user-pic" />
           <h3>${displayDate(postData.createdAt)}</h3>
-          <img src="assets/emojis/${postData.mood}.png" />
+          <img src="assets/emojis/${postData.mood}.png" alt="emoji" />
         </div>
+        <p class="post-user-name">${postData.userName}</p>
         <p>
           ${replaceNewlinesWithBrTags(postData.body)}
         </p>
