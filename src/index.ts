@@ -14,6 +14,13 @@ import {
   User,
   updateProfile,
 } from "firebase/auth"
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp,
+  FieldValue,
+} from "firebase/firestore"
 
 /* === Firebase Setup === */
 const firebaseConfig = {
@@ -28,6 +35,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const provider = new GoogleAuthProvider()
+const db = getFirestore(app)
 
 /* === UI === */
 
@@ -56,6 +64,8 @@ const toggleUpdateProfileSectionBtn = document.getElementById(
 )
 const updateErrorEl = document.getElementById("update-error")
 const signErrorEl = document.getElementById("sign-error")
+const textareaEl = document.getElementById("post-input")
+const postButtonEl = document.getElementById("post-btn")
 
 /* == UI - Event Listeners == */
 
@@ -68,6 +78,7 @@ toggleUpdateProfileSectionBtn.addEventListener(
   "click",
   toggleUpdateProfileSection
 )
+postButtonEl.addEventListener("click", postButtonPressed)
 
 /* === Main Code === */
 
@@ -138,17 +149,51 @@ async function authUpdateProfile() {
     photoURL: (photoURLInputEl as HTMLInputElement).value,
   }
 
-  try {
-    await updateProfile(auth.currentUser, updatedInfo)
+  if (updatedInfo.displayName) {
+    try {
+      await updateProfile(auth.currentUser, updatedInfo)
 
-    location.reload()
+      location.reload()
+    } catch (error) {
+      console.error("Updating profile failed:", getErrorMessage(error))
+      updateErrorEl.textContent = getErrorMessage(error)
+    }
+  }
+}
+
+/* = Functions - Firebase - Cloud Firestore = */
+
+async function addPostToDB(postBody: string, user: User) {
+  interface Post {
+    body: string
+    uid: string
+    createdAt: FieldValue
+  }
+
+  const post: Post = {
+    body: postBody,
+    uid: user.uid,
+    createdAt: serverTimestamp(),
+  }
+
+  try {
+    await addDoc(collection(db, "posts"), post)
   } catch (error) {
-    console.error("Updating profile failed:", getErrorMessage(error))
-    updateErrorEl.textContent = getErrorMessage(error)
+    console.error("Error adding document: ", getErrorMessage(error))
   }
 }
 
 /* == Functions - UI Functions == */
+
+function postButtonPressed() {
+  const postBody = (textareaEl as HTMLTextAreaElement).value
+  const user = auth.currentUser
+
+  if (postBody) {
+    addPostToDB(postBody, user)
+    clearInputField(textareaEl)
+  }
+}
 
 function showLoggedOutView() {
   hideElement(viewLoggedIn)
@@ -192,7 +237,7 @@ function showUserGreeting(element: HTMLElement, user: User) {
 }
 
 function toggleUpdateProfileSection() {
-  updateProfileContainer.classList.toggle("hide")
+  updateProfileContainer.classList.toggle("show")
 }
 
 /* == Utils == */

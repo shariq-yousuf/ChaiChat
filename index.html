@@ -56,8 +56,8 @@
           <form
             action="javascript:void(0)"
             id="update-profile-container"
-            class="hide"
-          >
+            >
+            <!-- class="show" -->
             <input
               id="display-name-input"
               type="text"
@@ -68,13 +68,20 @@
               id="photo-url-input"
               type="text"
               placeholder="Profile Photo URL"
-              required
             />
             <p id="update-error" class="error-msg"></p>
             <button id="update-profile-btn" class="primary-btn">
               Update profile
             </button>
           </form>
+
+          <div class="post-section">
+            <textarea
+              id="post-input"
+              placeholder="Write down how you're feeling..."
+            ></textarea>
+            <button id="post-btn" class="primary-btn">Post</button>
+          </div>
         </div>
       </div>
     </section>
