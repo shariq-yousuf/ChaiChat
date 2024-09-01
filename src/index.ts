@@ -20,8 +20,8 @@ import {
   addDoc,
   serverTimestamp,
   FieldValue,
-  getDocs,
   DocumentData,
+  onSnapshot,
 } from "firebase/firestore"
 
 /* === Firebase Setup === */
@@ -70,7 +70,6 @@ const postErrorEl = document.getElementById("post-error")
 const moodEmojiEls = document.getElementsByClassName("mood-emoji-btn")
 const textareaEl = document.getElementById("post-input")
 const postButtonEl = document.getElementById("post-btn")
-const fetchPostsButtonEl = document.getElementById("fetch-posts-btn")
 const postsEl = document.getElementById("posts")
 
 /* == UI - Event Listeners == */
@@ -88,19 +87,23 @@ for (let moodEmojiEl of moodEmojiEls) {
   moodEmojiEl.addEventListener("click", selectMood)
 }
 postButtonEl.addEventListener("click", postButtonPressed)
-fetchPostsButtonEl.addEventListener("click", fetchOnceAndRenderPostsFromDB)
 
 /* === State === */
 
 let moodState = 4
+
+/* === Global Constant === */
+
+const collectionName = "posts"
 
 /* === Main Code === */
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
     showLoggedInView()
-    showProfilePicture(userProfilePictureEl as HTMLImageElement, user)
-    showUserGreeting(userGreetingEl, user)
+    showProfilePicture(user)
+    showUserGreeting(user)
+    fetchInRealtimeAndRenderPostsFromDB()
   } else {
     showLoggedOutView()
   }
@@ -167,7 +170,8 @@ async function authUpdateProfile() {
     try {
       await updateProfile(auth.currentUser, updatedInfo)
 
-      location.reload()
+      showProfilePicture(auth.currentUser)
+      showUserGreeting(auth.currentUser)
     } catch (error) {
       console.error("Updating profile failed:", getErrorMessage(error))
       updateErrorEl.textContent = getErrorMessage(error)
@@ -192,24 +196,18 @@ async function addPostToDB(postBody: string, user: User) {
   }
 
   try {
-    await addDoc(collection(db, "posts"), post)
+    await addDoc(collection(db, collectionName), post)
   } catch (error) {
     console.error("Error adding document: ", getErrorMessage(error))
   }
 }
 
-async function fetchOnceAndRenderPostsFromDB() {
-  try {
-    const querySnapshot = await getDocs(collection(db, "posts"))
-
+function fetchInRealtimeAndRenderPostsFromDB() {
+  onSnapshot(collection(db, collectionName), (querySnapshot) => {
     clearAll(postsEl)
 
-    querySnapshot.forEach((doc) => {
-      renderPost(doc.data())
-    })
-  } catch (error) {
-    console.error("Fetching post failed ", getErrorMessage(error))
-  }
+    querySnapshot.forEach((doc) => renderPost(doc.data()))
+  })
 }
 
 /* == Functions - UI Functions == */
@@ -273,14 +271,14 @@ function clearAuthFields() {
   clearInputField(passwordInputEl)
 }
 
-function showProfilePicture(imgElement: HTMLImageElement, user: User) {
-  imgElement.src = user.photoURL
+function showProfilePicture(user: User) {
+  ;(userProfilePictureEl as HTMLImageElement).src = user.photoURL
     ? user.photoURL
     : "assets/images/default-profile-picture.jpeg" // default image
 }
 
-function showUserGreeting(element: HTMLElement, user: User) {
-  element.innerHTML = user.displayName
+function showUserGreeting(user: User) {
+  userGreetingEl.innerHTML = user.displayName
     ? `کیا حال ہے؟ ،<span class="user-name">${
         user.displayName.split(" ")[0]
       }</span> السلام علیکم`
@@ -292,6 +290,10 @@ function toggleUpdateProfileSection() {
 }
 
 function displayDate(firebaseDate: DocumentData) {
+  if (!firebaseDate) {
+    return "Date processing..."
+  }
+
   const date = firebaseDate.toDate()
 
   const day = date.getDate()
