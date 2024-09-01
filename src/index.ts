@@ -6,6 +6,7 @@ import {
   getAuth,
   createUserWithEmailAndPassword,
   sendEmailVerification,
+  signInWithEmailAndPassword,
 } from "firebase/auth"
 
 /* === Firebase Setup === */
@@ -57,8 +58,17 @@ function authSignInWithGoogle() {
   console.log("Sign in with Google")
 }
 
-function authSignInWithEmail() {
-  console.log("Sign in with email and password")
+async function authSignInWithEmail() {
+  const email = (emailInputEl as HTMLFormElement).value
+  const password = (passwordInputEl as HTMLFormElement).value
+
+  try {
+    await signInWithEmailAndPassword(auth, email, password)
+
+    showLoggedInView()
+  } catch (error) {
+    console.error("Sign in failed:", getErrorMessage(error))
+  }
 }
 
 async function authCreateAccountWithEmail() {
@@ -66,14 +76,10 @@ async function authCreateAccountWithEmail() {
   const password = (passwordInputEl as HTMLFormElement).value
 
   try {
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    )
+    await createUserWithEmailAndPassword(auth, email, password)
+
     sendEmailVerification(auth.currentUser)
     showLoggedInView()
-    console.log(auth)
   } catch (error) {
     console.error("Sign out failed:", getErrorMessage(error))
   }
