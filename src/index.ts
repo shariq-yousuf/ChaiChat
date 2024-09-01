@@ -1,12 +1,14 @@
 /* === Imports === */
 import "./index.css"
 import { initializeApp } from "firebase/app"
-import { getAnalytics } from "firebase/analytics"
+// import { getAnalytics } from "firebase/analytics"
 import {
   getAuth,
   createUserWithEmailAndPassword,
   sendEmailVerification,
   signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
 } from "firebase/auth"
 
 /* === Firebase Setup === */
@@ -19,7 +21,7 @@ const firebaseConfig = {
 }
 
 const app = initializeApp(firebaseConfig)
-const analytics = getAnalytics(app)
+// const analytics = getAnalytics(app)
 const auth = getAuth(app)
 
 /* === UI === */
@@ -28,27 +30,30 @@ const auth = getAuth(app)
 
 const viewLoggedOut = document.getElementById("logged-out-view")
 const viewLoggedIn = document.getElementById("logged-in-view")
-
 const signInWithGoogleButtonEl = document.getElementById(
   "sign-in-with-google-btn"
 )
-
 const emailInputEl = document.getElementById("email-input")
 const passwordInputEl = document.getElementById("password-input")
-
 const signInButtonEl = document.getElementById("sign-in-btn")
 const createAccountButtonEl = document.getElementById("create-account-btn")
-
+const signOutButtonEl = document.getElementById("sign-out-btn")
 /* == UI - Event Listeners == */
 
 signInWithGoogleButtonEl.addEventListener("click", authSignInWithGoogle)
-
 signInButtonEl.addEventListener("click", authSignInWithEmail)
 createAccountButtonEl.addEventListener("click", authCreateAccountWithEmail)
+signOutButtonEl.addEventListener("click", authSignOut)
 
 /* === Main Code === */
 
-showLoggedOutView()
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    showLoggedInView()
+  } else {
+    showLoggedOutView()
+  }
+})
 
 /* === Functions === */
 
@@ -65,7 +70,7 @@ async function authSignInWithEmail() {
   try {
     await signInWithEmailAndPassword(auth, email, password)
 
-    showLoggedInView()
+    clearAuthFields()
   } catch (error) {
     console.error("Sign in failed:", getErrorMessage(error))
   }
@@ -79,7 +84,15 @@ async function authCreateAccountWithEmail() {
     await createUserWithEmailAndPassword(auth, email, password)
 
     sendEmailVerification(auth.currentUser)
-    showLoggedInView()
+    clearAuthFields()
+  } catch (error) {
+    console.error("Sign up failed:", getErrorMessage(error))
+  }
+}
+
+async function authSignOut() {
+  try {
+    await signOut(auth)
   } catch (error) {
     console.error("Sign out failed:", getErrorMessage(error))
   }
@@ -103,6 +116,15 @@ function showElement(element: HTMLElement) {
 
 function hideElement(element: HTMLElement) {
   element.style.display = "none"
+}
+
+function clearInputField(field: HTMLElement) {
+  ;(field as HTMLFormElement).value = ""
+}
+
+function clearAuthFields() {
+  clearInputField(emailInputEl)
+  clearInputField(passwordInputEl)
 }
 
 /* == Utils == */

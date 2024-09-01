@@ -61,6 +61,15 @@ section {
   gap: 1em;
 }
 
+/* === Nav === */
+
+nav {
+  margin: 0.6em 0;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
 /* === Structure === */
 
 .container {
@@ -168,6 +177,22 @@ button:hover {
   width: 1.375em;
 }
 
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 1.875em;
+}
+
+.icon-img-btn {
+  width: 1.875em;
+}
+
+.icon-img-btn:hover {
+  filter: invert(0.5);
+}
+
 /* === IDs === */
 
 #logged-out-view {
@@ -176,4 +201,5 @@ button:hover {
 
 #logged-in-view {
   display: none;
+  margin: 0;
 }
