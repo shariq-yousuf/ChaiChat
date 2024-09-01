@@ -92,7 +92,7 @@ fetchPostsButtonEl.addEventListener("click", fetchOnceAndRenderPostsFromDB)
 
 /* === State === */
 
-let moodState = 0
+let moodState = 4
 
 /* === Main Code === */
 
@@ -222,10 +222,14 @@ function renderPost(postData: DocumentData) {
           <img src="assets/emojis/${postData.mood}.png" />
         </div>
         <p>
-          ${postData.body}
+          ${replaceNewlinesWithBrTags(postData.body)}
         </p>
       </div>  
   `
+}
+
+function replaceNewlinesWithBrTags(inputString: string) {
+  return inputString.replaceAll(/\n/g, "<br>")
 }
 
 function postButtonPressed() {
