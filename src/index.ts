@@ -20,6 +20,8 @@ import {
   addDoc,
   serverTimestamp,
   FieldValue,
+  getDocs,
+  DocumentData,
 } from "firebase/firestore"
 
 /* === Firebase Setup === */
@@ -68,6 +70,8 @@ const postErrorEl = document.getElementById("post-error")
 const moodEmojiEls = document.getElementsByClassName("mood-emoji-btn")
 const textareaEl = document.getElementById("post-input")
 const postButtonEl = document.getElementById("post-btn")
+const fetchPostsButtonEl = document.getElementById("fetch-posts-btn")
+const postsEl = document.getElementById("posts")
 
 /* == UI - Event Listeners == */
 
@@ -84,6 +88,7 @@ for (let moodEmojiEl of moodEmojiEls) {
   moodEmojiEl.addEventListener("click", selectMood)
 }
 postButtonEl.addEventListener("click", postButtonPressed)
+fetchPostsButtonEl.addEventListener("click", fetchOnceAndRenderPostsFromDB)
 
 /* === State === */
 
@@ -179,7 +184,6 @@ async function addPostToDB(postBody: string, user: User) {
     createdAt: FieldValue
     mood: number
   }
-
   const post: Post = {
     body: postBody,
     uid: user.uid,
@@ -194,7 +198,35 @@ async function addPostToDB(postBody: string, user: User) {
   }
 }
 
+async function fetchOnceAndRenderPostsFromDB() {
+  try {
+    const querySnapshot = await getDocs(collection(db, "posts"))
+
+    clearAll(postsEl)
+
+    querySnapshot.forEach((doc) => {
+      renderPost(doc.data())
+    })
+  } catch (error) {
+    console.error("Fetching post failed ", getErrorMessage(error))
+  }
+}
+
 /* == Functions - UI Functions == */
+
+function renderPost(postData: DocumentData) {
+  postsEl.innerHTML += `
+      <div class="post">
+        <div class="header">
+          <h3>${displayDate(postData.createdAt)}</h3>
+          <img src="assets/emojis/${postData.mood}.png" />
+        </div>
+        <p>
+          ${postData.body}
+        </p>
+      </div>  
+  `
+}
 
 function postButtonPressed() {
   const postBody = (textareaEl as HTMLTextAreaElement).value
@@ -255,6 +287,36 @@ function toggleUpdateProfileSection() {
   updateProfileContainer.classList.toggle("show")
 }
 
+function displayDate(firebaseDate: DocumentData) {
+  const date = firebaseDate.toDate()
+
+  const day = date.getDate()
+  const year = date.getFullYear()
+
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ]
+  const month = monthNames[date.getMonth()]
+
+  let hours = date.getHours().toString().padStart(2, 0)
+  let minutes = date.getMinutes().toString().padStart(2, 0)
+  // hours = hours < 10 ? "0" + hours : hours
+  // minutes = minutes < 10 ? "0" + minutes : minutes
+
+  return `${day} ${month} ${year} - ${hours}:${minutes}`
+}
+
 /* = Functions - UI Functions - Mood = */
 
 function selectMood(event: Event) {
@@ -295,8 +357,11 @@ function returnMoodValueFromElementId(elementId: string) {
   return Number(elementId.slice(5))
 }
 
-/* == Utils == */
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message
   return String(error)
+}
+
+function clearAll(element: HTMLElement) {
+  element.innerHTML = ""
 }

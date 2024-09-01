@@ -40,11 +40,14 @@ body {
 /* === Typography === */
 
 h1,
-h2 {
+h2,
+h3,
+p {
   margin: 0;
 }
 
-h2 {
+h2,
+h3 {
   font-weight: 500;
 }
 
@@ -100,40 +103,77 @@ section {
   gap: 1em;
 }
 
-
 /* == Post Section - Mood Emojis == */
 
 .mood-emojis {
-    display: flex;
+  display: flex;
 }
 
 .mood-emoji-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 0.8em;
-    gap: 0.3em;
-    background-color: transparent;
-    border: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.8em;
+  gap: 0.3em;
+  background-color: transparent;
+  border: 0;
 }
 
 .mood-emoji-btn:hover {
-    transform: scale(1.2);
+  transform: scale(1.2);
 }
 
 .mood-emoji-btn img {
-    width: 3.1em;
-    height: 3.1em;
+  width: 3.1em;
+  height: 3.1em;
 }
 
 .selected-emoji {
-    transform: scale(1.2);
-    opacity: 1;
+  transform: scale(1.2);
+  opacity: 1;
 }
 
 .unselected-emoji {
-    transform: scale(1);
-    opacity: 0.5;
+  transform: scale(1);
+  opacity: 0.5;
+}
+
+/* === Posts Section === */
+
+.posts-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  margin-bottom: 1.8em;
+}
+
+.post {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--secondary-color);
+  padding: 0.8em;
+  border-radius: var(--element-border-radius);
+  gap: 0.4em;
+}
+
+.post .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.post .header h3 {
+  font-size: 1em;
+}
+
+.post .header img {
+  width: 2em;
+  height: 2em;
+}
+
+.post p {
+  font-size: 0.9em;
+  line-height: 1.3em;
 }
 
 /* === Nav === */
@@ -162,7 +202,7 @@ nav {
 .app-container {
   display: flex;
   flex-direction: column;
-  gap: 2em;
+  gap: 1em;
 }
 
 /* === Common for elements === */
