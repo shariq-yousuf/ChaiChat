@@ -58,12 +58,9 @@ const userGreetingEl = document.getElementById("user-greeting")
 const displayNameInputEl = document.getElementById("display-name-input")
 const photoURLInputEl = document.getElementById("photo-url-input")
 const updateProfileButtonEl = document.getElementById("update-profile-btn")
-const updateProfileContainer = document.getElementById(
-  "update-profile-container"
-)
-const toggleUpdateProfileSectionBtn = document.getElementById(
-  "toggle-update-profile-section-btn"
-)
+const userSection = document.querySelector(".user-section")
+const postSection = document.querySelector(".post-container")
+const toggleSectionsBtn = document.getElementById("toggle-sections-btn")
 const signErrorEl = document.getElementById("sign-error")
 const updateErrorEl = document.getElementById("update-error")
 const postErrorEl = document.getElementById("post-error")
@@ -79,10 +76,7 @@ signInButtonEl.addEventListener("click", authSignInWithEmail)
 createAccountButtonEl.addEventListener("click", authCreateAccountWithEmail)
 signOutButtonEl.addEventListener("click", authSignOut)
 updateProfileButtonEl.addEventListener("click", authUpdateProfile)
-toggleUpdateProfileSectionBtn.addEventListener(
-  "click",
-  toggleUpdateProfileSection
-)
+toggleSectionsBtn.addEventListener("click", toggleSectionsView)
 for (let moodEmojiEl of moodEmojiEls) {
   moodEmojiEl.addEventListener("click", selectMood)
 }
@@ -285,8 +279,15 @@ function showUserGreeting(user: User) {
     : `السلام علیکم دوست، کیا حال ہے؟`
 }
 
-function toggleUpdateProfileSection() {
-  updateProfileContainer.classList.toggle("show")
+function toggleSectionsView() {
+  userSection.classList.toggle("show")
+  postSection.classList.toggle("hide")
+
+  if (postSection.classList.contains("hide")) {
+    toggleSectionsBtn.textContent = "Feed"
+  } else {
+    toggleSectionsBtn.textContent = "Profile"
+  }
 }
 
 function displayDate(firebaseDate: DocumentData) {

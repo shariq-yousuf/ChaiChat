@@ -72,7 +72,7 @@ section {
 /* === User Section === */
 
 .user-section {
-  display: flex;
+  display: none;
   flex-direction: column;
   align-items: center;
   gap: 0.8em;
@@ -238,7 +238,7 @@ textarea:focus {
 /* === Input fields === */
 
 form {
-  display: none;
+  display: flex;
   flex-direction: column;
   gap: 1em;
 }
@@ -355,7 +355,7 @@ button:hover {
   filter: invert(0.5);
 }
 
-#toggle-update-profile-section-btn {
+#toggle-sections-btn {
   width: 5em;
   height: 2em;
   padding: 0;

@@ -39,9 +39,7 @@
     <section id="logged-in-view">
       <div class="container">
         <nav>
-          <button id="toggle-update-profile-section-btn" class="primary-btn">
-            Profile
-          </button>
+          <button id="toggle-sections-btn" class="primary-btn">Profile</button>
           <button id="sign-out-btn" class="icon-btn">
             <img src="/assets/icons/icon-sign-out.svg" class="icon-img-btn" />
           </button>
@@ -51,59 +49,59 @@
           <div class="user-section">
             <img id="user-profile-picture" alt="profile-pic" />
             <h2 id="user-greeting"></h2>
+
+            <form action="javascript:void(0)" id="update-profile-container">
+              <input
+                id="display-name-input"
+                type="text"
+                placeholder="Display Name"
+                required
+              />
+              <input
+                id="photo-url-input"
+                type="text"
+                placeholder="Profile Photo URL"
+              />
+              <p id="update-error" class="error-msg"></p>
+              <button id="update-profile-btn" class="primary-btn">
+                Update profile
+              </button>
+            </form>
           </div>
 
-          <form action="javascript:void(0)" id="update-profile-container">
-            <input
-              id="display-name-input"
-              type="text"
-              placeholder="Display Name"
-              required
-            />
-            <input
-              id="photo-url-input"
-              type="text"
-              placeholder="Profile Photo URL"
-            />
-            <p id="update-error" class="error-msg"></p>
-            <button id="update-profile-btn" class="primary-btn">
-              Update profile
-            </button>
-          </form>
-
-          <div class="mood-emojis">
-            <button id="mood-1" class="mood-emoji-btn">
-              <img src="assets/emojis/1.png" />
-              Awful
-            </button>
-            <button id="mood-2" class="mood-emoji-btn">
-              <img src="assets/emojis/2.png" />
-              Bad
-            </button>
-            <button id="mood-3" class="mood-emoji-btn">
-              <img src="assets/emojis/3.png" />
-              Meh
-            </button>
-            <button id="mood-4" class="mood-emoji-btn">
-              <img src="assets/emojis/4.png" />
-              Good
-            </button>
-            <button id="mood-5" class="mood-emoji-btn">
-              <img src="assets/emojis/5.png" />
-              Amazing
-            </button>
+          <div class="post-container">
+            <div class="mood-emojis">
+              <button id="mood-1" class="mood-emoji-btn">
+                <img src="assets/emojis/1.png" />
+                Awful
+              </button>
+              <button id="mood-2" class="mood-emoji-btn">
+                <img src="assets/emojis/2.png" />
+                Bad
+              </button>
+              <button id="mood-3" class="mood-emoji-btn">
+                <img src="assets/emojis/3.png" />
+                Meh
+              </button>
+              <button id="mood-4" class="mood-emoji-btn">
+                <img src="assets/emojis/4.png" />
+                Good
+              </button>
+              <button id="mood-5" class="mood-emoji-btn">
+                <img src="assets/emojis/5.png" />
+                Amazing
+              </button>
+            </div>
+            <div class="post-section">
+              <textarea
+                id="post-input"
+                placeholder="Write down how you're feeling..."
+              ></textarea>
+              <p id="post-error" class="error-msg hide"></p>
+              <button id="post-btn" class="primary-btn">Post</button>
+            </div>
+            <div id="posts" class="posts-section"></div>
           </div>
-
-          <div class="post-section">
-            <textarea
-              id="post-input"
-              placeholder="Write down how you're feeling..."
-            ></textarea>
-            <p id="post-error" class="error-msg hide"></p>
-            <button id="post-btn" class="primary-btn">Post</button>
-          </div>
-
-          <div id="posts" class="posts-section"></div>
         </div>
       </div>
     </section>
