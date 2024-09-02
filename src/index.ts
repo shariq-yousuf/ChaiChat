@@ -25,6 +25,7 @@ import {
   query,
   orderBy,
   limit,
+  where,
 } from "firebase/firestore"
 
 /* === Firebase Setup === */
@@ -70,6 +71,8 @@ const postErrorEl = document.getElementById("post-error")
 const moodEmojiEls = document.getElementsByClassName("mood-emoji-btn")
 const textareaEl = document.getElementById("post-input")
 const postButtonEl = document.getElementById("post-btn")
+const allFilterButtonEl = document.getElementById("all-filter-btn")
+const filterButtonEls = document.getElementsByClassName("filter-btn")
 const postsEl = document.getElementById("posts")
 
 /* == UI - Event Listeners == */
@@ -82,6 +85,9 @@ updateProfileButtonEl.addEventListener("click", authUpdateProfile)
 toggleSectionsBtn.addEventListener("click", toggleSectionsView)
 for (let moodEmojiEl of moodEmojiEls) {
   moodEmojiEl.addEventListener("click", selectMood)
+}
+for (let filterButtonEl of filterButtonEls) {
+  filterButtonEl.addEventListener("click", selectFilter)
 }
 postButtonEl.addEventListener("click", postButtonPressed)
 
@@ -100,7 +106,8 @@ onAuthStateChanged(auth, (user) => {
     showLoggedInView()
     showProfilePicture(user)
     showUserName(user)
-    fetchInRealtimeAndRenderPostsFromDB()
+    updateFilterButtonStyle(allFilterButtonEl)
+    fetchAllPosts()
   } else {
     showLoggedOutView()
   }
@@ -208,15 +215,73 @@ async function addPostToDB(postBody: string, user: User) {
   }
 }
 
-function fetchInRealtimeAndRenderPostsFromDB() {
+function fetchInRealtimeAndRenderPostsFromDB(
+  isAllPosts: boolean,
+  start?: Date,
+  end?: Date
+) {
   const postsRef = collection(db, collectionName)
-  const q = query(postsRef, orderBy("createdAt", "desc"), limit(15))
+  let q
+
+  if (isAllPosts) {
+    q = query(postsRef, orderBy("createdAt", "desc"), limit(20))
+  } else {
+    q = query(
+      postsRef,
+      where("createdAt", ">=", start),
+      where("createdAt", "<=", end),
+      orderBy("createdAt", "desc"),
+      limit(20)
+    )
+  }
 
   onSnapshot(q, (querySnapshot) => {
     clearAll(postsEl)
 
     querySnapshot.forEach((doc) => renderPost(doc.data()))
   })
+}
+
+function fetchTodayPosts() {
+  const startOfDay = new Date()
+  startOfDay.setHours(0, 0, 0, 0)
+
+  const endOfDay = new Date()
+  endOfDay.setHours(23, 59, 59, 999)
+
+  fetchInRealtimeAndRenderPostsFromDB(false, startOfDay, endOfDay)
+}
+
+function fetchWeekPosts() {
+  const startOfWeek = new Date()
+  startOfWeek.setHours(0, 0, 0, 0)
+
+  if (startOfWeek.getDay() === 0) {
+    // If today is Sunday
+    startOfWeek.setDate(startOfWeek.getDate() - 6) // Go to previous Monday
+  } else {
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1)
+  }
+
+  const endOfWeek = new Date()
+  endOfWeek.setHours(23, 59, 59, 999)
+
+  fetchInRealtimeAndRenderPostsFromDB(false, startOfWeek, endOfWeek)
+}
+
+function fetchMonthPosts() {
+  const startOfMonth = new Date()
+  startOfMonth.setHours(0, 0, 0, 0)
+  startOfMonth.setDate(1)
+
+  const endOfMonth = new Date()
+  endOfMonth.setHours(23, 59, 59, 999)
+
+  fetchInRealtimeAndRenderPostsFromDB(false, startOfMonth, endOfMonth)
+}
+
+function fetchAllPosts() {
+  fetchInRealtimeAndRenderPostsFromDB(true)
 }
 
 /* == Functions - UI Functions == */
@@ -388,4 +453,39 @@ function getErrorMessage(error: unknown): string {
 
 function clearAll(element: HTMLElement) {
   element.innerHTML = ""
+}
+
+/* == Functions - UI Functions - Date Filters == */
+
+function resetAllFilterButtons(allFilterButtons: HTMLCollectionOf<Element>) {
+  for (let filterButtonEl of allFilterButtons) {
+    filterButtonEl.classList.remove("selected-filter")
+  }
+}
+
+function updateFilterButtonStyle(element: HTMLElement) {
+  element.classList.add("selected-filter")
+}
+
+function fetchPostsFromPeriod(period: string) {
+  if (period === "today") {
+    fetchTodayPosts()
+  } else if (period === "week") {
+    fetchWeekPosts()
+  } else if (period === "month") {
+    fetchMonthPosts()
+  } else {
+    fetchAllPosts()
+  }
+}
+
+function selectFilter(event: Event) {
+  const selectedFilterElementId = (event.target as HTMLInputElement).id
+  const selectedFilterPeriod = selectedFilterElementId.split("-")[0]
+  const selectedFilterElement = document.getElementById(selectedFilterElementId)
+
+  resetAllFilterButtons(filterButtonEls)
+  updateFilterButtonStyle(selectedFilterElement)
+
+  fetchPostsFromPeriod(selectedFilterPeriod)
 }

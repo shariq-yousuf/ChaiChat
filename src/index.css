@@ -8,6 +8,7 @@
   --light-color: #fffefc;
   --grey-color: #747e79;
   --dark-color: #000000;
+  --white-color: #fffefc;
 
   --primary-font: "Cabin", sans-serif;
   --seconday-font: "Calistoga", sans-serif;
@@ -142,6 +143,34 @@ section {
   gap: 1em;
   margin-bottom: 1.8em;
 }
+
+/* == Posts Section - Filters == */
+
+.filters-and-posts-section {
+  margin-top: 1em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+}
+
+.filters-section {
+  display: flex;
+  gap: 0.4em;
+}
+
+.filter-btn {
+  color: var(--dark-color);
+  font-size: 0.9em;
+  padding: 0.3em;
+  background-color: transparent;
+}
+
+.selected-filter {
+  color: var(--white-color);
+  background-color: var(--dark-color);
+}
+
+/* == Posts Section - Posts == */
 
 .post {
   display: flex;
