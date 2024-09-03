@@ -25,6 +25,10 @@
   --maximum-width: 320px;
 }
 
+::-webkit-scrollbar {
+  display: none;
+}
+
 html,
 body {
   margin: 0;
@@ -196,14 +200,47 @@ section {
   height: 2em;
 }
 
+.post-user-name {
+  font-weight: bold;
+  color: green;
+}
+
 .post p {
   font-size: 0.9em;
   line-height: 1.3em;
 }
 
-.post-user-name {
-  font-weight: bold;
-  color: green;
+/* = Posts Section - Posts - Footer = */
+
+.footer {
+  margin: 0.3em 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+}
+
+.post .footer button {
+  font-size: 0.9em;
+  padding: 0.2em 0.8em;
+  box-shadow: 0px var(--small-button-height) 0px 0px var(--dark-color);
+  position: relative;
+}
+
+.post .footer button:active {
+  top: var(--small-button-height);
+  box-shadow: none;
+}
+
+.post .footer .edit-color {
+  background-color: var(--post-color);
+}
+
+.update-textarea::-webkit-scrollbar {
+  display: none;
+}
+
+.update-textarea {
+  box-shadow: none;
 }
 
 /* === Nav === */

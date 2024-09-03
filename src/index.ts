@@ -26,6 +26,8 @@ import {
   orderBy,
   limit,
   where,
+  updateDoc,
+  doc,
 } from "firebase/firestore"
 
 /* === Firebase Setup === */
@@ -98,6 +100,7 @@ let moodState = 4
 /* === Global Constant === */
 
 const collectionName = "posts"
+let isUpdating = false
 
 /* === Main Code === */
 
@@ -215,6 +218,47 @@ async function addPostToDB(postBody: string, user: User) {
   }
 }
 
+async function updatePostInDB(wholeDoc: DocumentData, footerEl: HTMLElement) {
+  const postId = wholeDoc.id
+  const postData = wholeDoc.data()
+  const editBtn = footerEl.querySelector(".edit-btn")
+
+  if (!isUpdating || editBtn.textContent === "Edit") {
+    const updateTextarea = document.createElement("textarea")
+    updateTextarea.className = "update-textarea"
+    updateTextarea.value = postData.body.replaceAll(/<br>/g, "\n")
+    footerEl.insertBefore(updateTextarea, editBtn)
+
+    editBtn.textContent = "Update"
+    isUpdating = true
+  } else {
+    const updateTextarea = document.querySelector(".update-textarea")
+    const newBody = (updateTextarea as HTMLTextAreaElement).value
+
+    if (newBody) {
+      try {
+        editBtn.textContent = "Updating..."
+        const postRef = doc(db, collectionName, postId)
+        await updateDoc(postRef, {
+          body: newBody,
+        })
+
+        updateTextarea.remove()
+        editBtn.textContent = "Edit"
+        isUpdating = false
+
+        // const editTag = document.createElement("span")
+        // editTag.className = "edit-tag"
+        // editTag.textContent = "(edited)"
+        // footerEl.insertBefore(editTag, editBtn)
+      } catch (error) {
+        editBtn.textContent = "Failed"
+        console.error("Error updating document: ", getErrorMessage(error))
+      }
+    }
+  }
+}
+
 function fetchInRealtimeAndRenderPostsFromDB(
   isAllPosts: boolean,
   start?: Date,
@@ -238,7 +282,7 @@ function fetchInRealtimeAndRenderPostsFromDB(
   onSnapshot(q, (querySnapshot) => {
     clearAll(postsEl)
 
-    querySnapshot.forEach((doc) => renderPost(doc.data()))
+    querySnapshot.forEach((doc) => renderPost(doc))
   })
 }
 
@@ -286,24 +330,46 @@ function fetchAllPosts() {
 
 /* == Functions - UI Functions == */
 
-function renderPost(postData: DocumentData) {
+function renderPost(wholeDoc: DocumentData) {
+  const postData = wholeDoc.data()
+
+  const postDiv = document.createElement("div")
+  postDiv.className = "post"
+
   const profilPicLink = postData.profilePic
     ? postData.profilePic
     : "assets/images/default-profile-picture.jpeg"
 
-  postsEl.innerHTML += `
-      <div class="post">
+  postDiv.innerHTML += `
         <div class="header">
           <img src="${profilPicLink}" alt="user-pic" />
           <h3>${displayDate(postData.createdAt)}</h3>
           <img src="assets/emojis/${postData.mood}.png" alt="emoji" />
         </div>
         <p class="post-user-name">${postData.userName}</p>
-        <p>
+        <p class="post-body">
           ${replaceNewlinesWithBrTags(postData.body)}
         </p>
-      </div>  
   `
+
+  if (auth.currentUser.uid === postData.uid) {
+    postDiv.appendChild(createFooterElement(wholeDoc))
+  }
+
+  postsEl.appendChild(postDiv)
+}
+
+function createFooterElement(wholeDoc: DocumentData) {
+  const footer = document.createElement("footer")
+  footer.className = "footer"
+
+  const editButton = document.createElement("button")
+  editButton.classList.add("edit-color", "edit-btn")
+  editButton.textContent = "Edit"
+  editButton.addEventListener("click", () => updatePostInDB(wholeDoc, footer))
+  footer.appendChild(editButton)
+
+  return footer
 }
 
 function replaceNewlinesWithBrTags(inputString: string) {
