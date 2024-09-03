@@ -25,6 +25,10 @@ import {
   query,
   orderBy,
   limit,
+  where,
+  updateDoc,
+  doc,
+  deleteDoc,
 } from "firebase/firestore"
 
 /* === Firebase Setup === */
@@ -70,6 +74,8 @@ const postErrorEl = document.getElementById("post-error")
 const moodEmojiEls = document.getElementsByClassName("mood-emoji-btn")
 const textareaEl = document.getElementById("post-input")
 const postButtonEl = document.getElementById("post-btn")
+const allFilterButtonEl = document.getElementById("all-filter-btn")
+const filterButtonEls = document.getElementsByClassName("filter-btn")
 const postsEl = document.getElementById("posts")
 
 /* == UI - Event Listeners == */
@@ -83,6 +89,9 @@ toggleSectionsBtn.addEventListener("click", toggleSectionsView)
 for (let moodEmojiEl of moodEmojiEls) {
   moodEmojiEl.addEventListener("click", selectMood)
 }
+for (let filterButtonEl of filterButtonEls) {
+  filterButtonEl.addEventListener("click", selectFilter)
+}
 postButtonEl.addEventListener("click", postButtonPressed)
 
 /* === State === */
@@ -92,6 +101,7 @@ let moodState = 4
 /* === Global Constant === */
 
 const collectionName = "posts"
+let isUpdating = false
 
 /* === Main Code === */
 
@@ -100,7 +110,8 @@ onAuthStateChanged(auth, (user) => {
     showLoggedInView()
     showProfilePicture(user)
     showUserName(user)
-    fetchInRealtimeAndRenderPostsFromDB()
+    updateFilterButtonStyle(allFilterButtonEl)
+    fetchAllPosts()
   } else {
     showLoggedOutView()
   }
@@ -208,37 +219,182 @@ async function addPostToDB(postBody: string, user: User) {
   }
 }
 
-function fetchInRealtimeAndRenderPostsFromDB() {
+async function updatePostInDB(wholeDoc: DocumentData, footerEl: HTMLElement) {
+  const postId = wholeDoc.id
+  const postData = wholeDoc.data()
+  const editBtn = footerEl.querySelector(".edit-btn")
+
+  if (!isUpdating || editBtn.textContent === "Edit") {
+    const updateTextarea = document.createElement("textarea")
+    updateTextarea.className = "update-textarea"
+    updateTextarea.value = postData.body.replaceAll(/<br>/g, "\n")
+    footerEl.insertBefore(updateTextarea, editBtn)
+
+    editBtn.textContent = "Update"
+    isUpdating = true
+  } else {
+    const updateTextarea = document.querySelector(".update-textarea")
+    const newBody = (updateTextarea as HTMLTextAreaElement).value
+
+    if (newBody) {
+      try {
+        editBtn.textContent = "Updating..."
+        const postRef = doc(db, collectionName, postId)
+        await updateDoc(postRef, {
+          body: newBody,
+        })
+
+        updateTextarea.remove()
+        editBtn.textContent = "Edit"
+        isUpdating = false
+
+        // const editTag = document.createElement("span")
+        // editTag.className = "edit-tag"
+        // editTag.textContent = "(edited)"
+        // footerEl.insertBefore(editTag, editBtn)
+      } catch (error) {
+        editBtn.textContent = "Failed"
+        console.error("Error updating document: ", getErrorMessage(error))
+      }
+    }
+  }
+}
+
+async function deletePostFromDB(postId: string) {
+  const confirmDelete = confirm(
+    "Are you sure you want to delete this post? This action cannot be undone."
+  )
+
+  if (confirmDelete) {
+    try {
+      await deleteDoc(doc(db, collectionName, postId))
+    } catch (error) {
+      console.error("Error deleting document: ", getErrorMessage(error))
+    }
+  }
+}
+
+function fetchInRealtimeAndRenderPostsFromDB(
+  isAllPosts: boolean,
+  start?: Date,
+  end?: Date
+) {
   const postsRef = collection(db, collectionName)
-  const q = query(postsRef, orderBy("createdAt", "desc"), limit(15))
+  let q
+
+  if (isAllPosts) {
+    q = query(postsRef, orderBy("createdAt", "desc"), limit(20))
+  } else {
+    q = query(
+      postsRef,
+      where("createdAt", ">=", start),
+      where("createdAt", "<=", end),
+      orderBy("createdAt", "desc"),
+      limit(20)
+    )
+  }
 
   onSnapshot(q, (querySnapshot) => {
     clearAll(postsEl)
 
-    querySnapshot.forEach((doc) => renderPost(doc.data()))
+    querySnapshot.forEach((doc) => renderPost(doc))
   })
+}
+
+function fetchTodayPosts() {
+  const startOfDay = new Date()
+  startOfDay.setHours(0, 0, 0, 0)
+
+  const endOfDay = new Date()
+  endOfDay.setHours(23, 59, 59, 999)
+
+  fetchInRealtimeAndRenderPostsFromDB(false, startOfDay, endOfDay)
+}
+
+function fetchWeekPosts() {
+  const startOfWeek = new Date()
+  startOfWeek.setHours(0, 0, 0, 0)
+
+  if (startOfWeek.getDay() === 0) {
+    // If today is Sunday
+    startOfWeek.setDate(startOfWeek.getDate() - 6) // Go to previous Monday
+  } else {
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1)
+  }
+
+  const endOfWeek = new Date()
+  endOfWeek.setHours(23, 59, 59, 999)
+
+  fetchInRealtimeAndRenderPostsFromDB(false, startOfWeek, endOfWeek)
+}
+
+function fetchMonthPosts() {
+  const startOfMonth = new Date()
+  startOfMonth.setHours(0, 0, 0, 0)
+  startOfMonth.setDate(1)
+
+  const endOfMonth = new Date()
+  endOfMonth.setHours(23, 59, 59, 999)
+
+  fetchInRealtimeAndRenderPostsFromDB(false, startOfMonth, endOfMonth)
+}
+
+function fetchAllPosts() {
+  fetchInRealtimeAndRenderPostsFromDB(true)
 }
 
 /* == Functions - UI Functions == */
 
-function renderPost(postData: DocumentData) {
+function renderPost(wholeDoc: DocumentData) {
+  const postData = wholeDoc.data()
+
+  const postDiv = document.createElement("div")
+  postDiv.className = "post"
+
   const profilPicLink = postData.profilePic
     ? postData.profilePic
     : "assets/images/default-profile-picture.jpeg"
 
-  postsEl.innerHTML += `
-      <div class="post">
+  postDiv.innerHTML += `
         <div class="header">
           <img src="${profilPicLink}" alt="user-pic" />
           <h3>${displayDate(postData.createdAt)}</h3>
           <img src="assets/emojis/${postData.mood}.png" alt="emoji" />
         </div>
         <p class="post-user-name">${postData.userName}</p>
-        <p>
+        <p class="post-body">
           ${replaceNewlinesWithBrTags(postData.body)}
         </p>
-      </div>  
   `
+
+  if (auth.currentUser.uid === postData.uid) {
+    postDiv.appendChild(createFooterElement(wholeDoc))
+  }
+
+  postsEl.appendChild(postDiv)
+}
+
+function createFooterElement(wholeDoc: DocumentData) {
+  const footer = document.createElement("footer")
+  footer.className = "footer"
+
+  const editButton = createButtonElement("Edit", "edit-color", "edit-btn")
+  editButton.addEventListener("click", () => updatePostInDB(wholeDoc, footer))
+  footer.appendChild(editButton)
+
+  const deleteBtn = createButtonElement("Delete", "delete-color", "delete-btn")
+  deleteBtn.addEventListener("click", () => deletePostFromDB(wholeDoc.id))
+  footer.appendChild(deleteBtn)
+
+  return footer
+}
+
+function createButtonElement(text: string, class1: string, class2: string) {
+  const button = document.createElement("button")
+  button.classList.add(class1, class2)
+  button.textContent = text
+
+  return button
 }
 
 function replaceNewlinesWithBrTags(inputString: string) {
@@ -388,4 +544,39 @@ function getErrorMessage(error: unknown): string {
 
 function clearAll(element: HTMLElement) {
   element.innerHTML = ""
+}
+
+/* == Functions - UI Functions - Date Filters == */
+
+function resetAllFilterButtons(allFilterButtons: HTMLCollectionOf<Element>) {
+  for (let filterButtonEl of allFilterButtons) {
+    filterButtonEl.classList.remove("selected-filter")
+  }
+}
+
+function updateFilterButtonStyle(element: HTMLElement) {
+  element.classList.add("selected-filter")
+}
+
+function fetchPostsFromPeriod(period: string) {
+  if (period === "today") {
+    fetchTodayPosts()
+  } else if (period === "week") {
+    fetchWeekPosts()
+  } else if (period === "month") {
+    fetchMonthPosts()
+  } else {
+    fetchAllPosts()
+  }
+}
+
+function selectFilter(event: Event) {
+  const selectedFilterElementId = (event.target as HTMLInputElement).id
+  const selectedFilterPeriod = selectedFilterElementId.split("-")[0]
+  const selectedFilterElement = document.getElementById(selectedFilterElementId)
+
+  resetAllFilterButtons(filterButtonEls)
+  updateFilterButtonStyle(selectedFilterElement)
+
+  fetchPostsFromPeriod(selectedFilterPeriod)
 }

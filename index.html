@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>TPark</title>
+    <title>ChaiChat</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,7 +14,7 @@
   <body>
     <section id="logged-out-view">
       <div class="container">
-        <h1 class="app-title">TPark</h1>
+        <h1 class="app-title">ChaiChat</h1>
 
         <div class="provider-buttons">
           <button id="sign-in-with-google-btn" class="provider-btn">
@@ -94,6 +94,7 @@
                 Amazing
               </button>
             </div>
+
             <div class="post-section">
               <textarea
                 id="post-input"
@@ -102,7 +103,17 @@
               <p id="post-error" class="error-msg hide"></p>
               <button id="post-btn" class="primary-btn">Post</button>
             </div>
-            <div id="posts" class="posts-section"></div>
+
+            <div class="filters-and-posts-section">
+              <div class="filters-section">
+                <button id="today-filter-btn" class="filter-btn">Today</button>
+                <button id="week-filter-btn" class="filter-btn">Week</button>
+                <button id="month-filter-btn" class="filter-btn">Month</button>
+                <button id="all-filter-btn" class="filter-btn">All</button>
+              </div>
+
+              <div id="posts" class="posts-section"></div>
+            </div>
           </div>
         </div>
       </div>
