@@ -405,7 +405,7 @@ function postButtonPressed() {
   const postBody = (textareaEl as HTMLTextAreaElement).value
   const user = auth.currentUser
 
-  if (postBody && moodState) {
+  if (postBody) {
     addPostToDB(postBody, user)
     clearInputField(textareaEl)
     resetAllMoodElements()
