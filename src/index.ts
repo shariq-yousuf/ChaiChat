@@ -530,7 +530,7 @@ function resetAllMoodElements() {
     moodEmojiEl.classList.remove("unselected-emoji")
   }
 
-  moodState = 0
+  moodState = 4
 }
 
 function returnMoodValueFromElementId(elementId: string) {
