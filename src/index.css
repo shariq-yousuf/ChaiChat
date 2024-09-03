@@ -235,6 +235,10 @@ section {
   background-color: var(--post-color);
 }
 
+.post .footer .delete-color {
+  background-color: var(--delete-color);
+}
+
 .update-textarea::-webkit-scrollbar {
   display: none;
 }

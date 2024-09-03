@@ -28,6 +28,7 @@ import {
   where,
   updateDoc,
   doc,
+  deleteDoc,
 } from "firebase/firestore"
 
 /* === Firebase Setup === */
@@ -259,6 +260,20 @@ async function updatePostInDB(wholeDoc: DocumentData, footerEl: HTMLElement) {
   }
 }
 
+async function deletePostFromDB(postId: string) {
+  const confirmDelete = confirm(
+    "Are you sure you want to delete this post? This action cannot be undone."
+  )
+
+  if (confirmDelete) {
+    try {
+      await deleteDoc(doc(db, collectionName, postId))
+    } catch (error) {
+      console.error("Error deleting document: ", getErrorMessage(error))
+    }
+  }
+}
+
 function fetchInRealtimeAndRenderPostsFromDB(
   isAllPosts: boolean,
   start?: Date,
@@ -363,13 +378,23 @@ function createFooterElement(wholeDoc: DocumentData) {
   const footer = document.createElement("footer")
   footer.className = "footer"
 
-  const editButton = document.createElement("button")
-  editButton.classList.add("edit-color", "edit-btn")
-  editButton.textContent = "Edit"
+  const editButton = createButtonElement("Edit", "edit-color", "edit-btn")
   editButton.addEventListener("click", () => updatePostInDB(wholeDoc, footer))
   footer.appendChild(editButton)
 
+  const deleteBtn = createButtonElement("Delete", "delete-color", "delete-btn")
+  deleteBtn.addEventListener("click", () => deletePostFromDB(wholeDoc.id))
+  footer.appendChild(deleteBtn)
+
   return footer
+}
+
+function createButtonElement(text: string, class1: string, class2: string) {
+  const button = document.createElement("button")
+  button.classList.add(class1, class2)
+  button.textContent = text
+
+  return button
 }
 
 function replaceNewlinesWithBrTags(inputString: string) {
